@@ -5,6 +5,8 @@ import pandas as pd
 import os
 from datetime import datetime
 import winsound
+import threading
+
 
 count= 0
 a="pass"
@@ -159,34 +161,42 @@ def on_button_click(entry_serial, entry_cabo, entry_fonte, result_label, status_
      cabo_ok = cabo.startswith(sn_cabo) if sn_cabo else False
      fonte_ok = fonte.startswith(value) if sn_fonte else False
 
-     root.config(bg="green")
+   #  root.config(bg="green")
 
      if cabo_ok and fonte_ok:
+
+      status_label.config(text="Validação obteve sucesso")
+      original_color = root.cget('bg')  # Salva a cor original
+      root.config(bg="green")
+      root.update()  # Força a atualização imediata da interface
+    
+    # Cria e inicia a thread para as operações demoradas
+      thread = threading.Thread(target=executar_operacoes_demoradas(result_label))
+      thread.daemon = True  # Opcional: faz a thread terminar quando o programa principal terminar
+      thread.start()
+    
+    # Volta a cor original após 5 segundos
+      root.after(3000, lambda: root.config(bg=original_color))
         # Se ambos os números de série forem prefixos dos valores inseridos
-        status_label.config(text="Validação obteve sucesso")
-        root.config(bg="green") 
-       # winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
-      #  root.after(50, lambda: root.config(bg='green'))  # Cor padrão da janela
-       # winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
-        root.after(20200, lambda: root.config(bg='SystemButtonFace'))  # Cor padrão da janela
-        winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
-        winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+#         status_label.config(text="Validação obteve sucesso")
+#   #      root.config(bg="green") 
+#        # winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+#       #  root.after(50, lambda: root.config(bg='green'))  # Cor padrão da janela
+#        # winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+#     #    root.after(13200, lambda: root.config(bg='SystemButtonFace'))  # Cor padrão da janela
+#         winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+#         winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
         
         
-        result_label.config(text=f"")
-        logstep("01100 - Operation successfully")
+#         result_label.config(text=f"")
+#         logstep("01100 - Operation successfully")
 
        
-        logstep("═══════════════════════════════════════════════════════════")
-        logstep("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅")
-        logstep("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅")
-        logstep("═══════════════════════════════════════════════════════════")
-        execution_counter=1
+    
+      execution_counter=1
         
         
-     else:
-        # Caso contrário, verifica se algum não está correto
-        if not cabo_ok:
+     elif not cabo_ok:
             status_label.config(text="Cabo não encontrado ou não corresponde")
             connection_status_label.config(bg="red") 
             # Alterar a cor de fundo da janela para vermelho
@@ -207,7 +217,7 @@ def on_button_click(entry_serial, entry_cabo, entry_fonte, result_label, status_
             
             
 
-        elif not fonte_ok:
+     elif not fonte_ok:
             status_label.config(text="Fonte não encontrada ou não corresponde")
             connection_status_label.config(bg="red") 
             root.config(bg="red")
@@ -225,9 +235,8 @@ def on_button_click(entry_serial, entry_cabo, entry_fonte, result_label, status_
             logstep("═══════════════════════════════════════════════════════════")
             execution_counter=1
             
-        else:
-            status_label.config(text="Não encontrado")
-    else:
+        
+     else:
        status_label.config(text="Por favor, preencha um serial valido") 
               
     
@@ -321,6 +330,13 @@ def main(status_code):
 
     # Iniciar a interface gráfica
     root.mainloop()
+
+def executar_operacoes_demoradas(result_label):
+    # Esta função será executada em uma thread separada
+    winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+    winsound.PlaySound(sound_file1, winsound.SND_FILENAME)
+    result_label.config(text=f"")
+    logstep("01100 - Operation successfully")    
 
 
 def toggle_fullscreen(root, event=None):
